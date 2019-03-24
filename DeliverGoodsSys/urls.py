@@ -16,6 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from DeliverGoods import views as  dg_views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('dg/login', dg_views.do_login),
+    path('dg/logout', dg_views.do_logout),
+    path('dg/getRouteShopList', dg_views.getRouteShopList),
+    path('dg/getShopGoodsList', dg_views.getShopGoodsList),
 ]

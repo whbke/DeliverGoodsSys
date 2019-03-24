@@ -3,12 +3,12 @@ from django.contrib import admin
 # Register your models here.
 
 from DeliverGoods.models import User, UnitCategory, Unit, GoodsCategory,\
-    Goods, Warehouse, Shop, ShopGoodsItem, DeliveryNote, DeliveryNoteGoods,\
+    Goods, Warehouse, Shop, GoodsItem, DeliveryNote, DeliveryNoteGoods,\
     Route, Car
 
 # Register your models here.
 admin.site.register([User, UnitCategory, Unit, GoodsCategory,
-    Goods, ShopGoodsItem, DeliveryNoteGoods])
+                     Goods, GoodsItem, DeliveryNoteGoods])
 
 
 class ShopAdmin(admin.ModelAdmin):
@@ -32,5 +32,5 @@ admin.site.register(Route, RouteAdmin)
 
 
 class CarAdmin(admin.ModelAdmin):
-    filter_horizontal = ['passenger']
+    filter_horizontal = ['passenger', 'goods']
 admin.site.register(Car, CarAdmin)

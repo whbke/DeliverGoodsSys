@@ -29,6 +29,7 @@ class UnitCategory(models.Model):
     def __str__(self):
         return self.name
 
+
 # 单位
 class Unit(models.Model):
     name = models.CharField(max_length=64, verbose_name='名称')
@@ -77,23 +78,8 @@ class Goods(models.Model):
         return self.name
 
 
-# 仓库
-class Warehouse(models.Model):
-    name = models.CharField(max_length=128, verbose_name='仓库名称')
-    goods = models.ManyToManyField(Goods, blank=True, verbose_name='商品')
-    index = models.IntegerField(default=1, verbose_name='排序')
-
-    class Meta:
-        verbose_name = '仓库'
-        verbose_name_plural = verbose_name
-        ordering = ['index', ]
-
-    def __str__(self):
-        return self.name
-
-
 # 商家-商品
-class ShopGoodsItem(models.Model):
+class GoodsItem(models.Model):
     goods = models.ForeignKey(Goods, on_delete=models.CASCADE, verbose_name='商品')
     price = models.FloatField(verbose_name='价格')
     unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, verbose_name='单位')
@@ -112,10 +98,25 @@ class ShopGoodsItem(models.Model):
         return '{}({}/{})'.format(self.goods.name, self.price, self.unit.name)
 
 
+# 仓库
+class Warehouse(models.Model):
+    name = models.CharField(max_length=128, verbose_name='仓库名称')
+    goods = models.ManyToManyField(GoodsItem, blank=True, verbose_name='商品')
+    index = models.IntegerField(default=1, verbose_name='排序')
+
+    class Meta:
+        verbose_name = '仓库'
+        verbose_name_plural = verbose_name
+        ordering = ['index', ]
+
+    def __str__(self):
+        return self.name
+
+
 # 商家
 class Shop(models.Model):
     name = models.CharField(max_length=128, verbose_name='商家名称')
-    goods = models.ManyToManyField(ShopGoodsItem, blank=True, verbose_name='商品')
+    goods = models.ManyToManyField(GoodsItem, blank=True, verbose_name='商品')
     longitude = models.FloatField(verbose_name='经度')
     latitude = models.FloatField(verbose_name='纬度')
     scope = models.FloatField(default=100, verbose_name='范围(米)')
@@ -132,7 +133,7 @@ class Shop(models.Model):
 
 # 送货单-货物
 class DeliveryNoteGoods(models.Model):
-    goods = models.ForeignKey(ShopGoodsItem, on_delete=models.CASCADE, verbose_name='商品')
+    goods = models.ForeignKey(GoodsItem, on_delete=models.CASCADE, verbose_name='商品')
     actualDeliveryNumber = models.IntegerField(default=0, verbose_name='送货数量')
     actualDeliveryNumberUnit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, verbose_name='送货数量单位')
 
@@ -142,6 +143,7 @@ class DeliveryNoteGoods(models.Model):
 
     def __str__(self):
         return self.note.shop.name + '---' + self.goods.goods.name + '---' + self.note.createTime
+
 
 # 送货单
 class DeliveryNote(models.Model):
@@ -161,6 +163,7 @@ class DeliveryNote(models.Model):
     def __str__(self):
         return self.car.name + '---' + self.shop.name
 
+
 # 货运路线
 class Route(models.Model):
     name = models.CharField(max_length=128, verbose_name='路线名称')
@@ -175,12 +178,14 @@ class Route(models.Model):
     def __str__(self):
         return self.name
 
+
 # 货运车
 class Car(models.Model):
     name = models.CharField(max_length=128, verbose_name='车')
     driver = models.ForeignKey(User, related_name='driver', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='司机')
     passenger = models.ManyToManyField(User, related_name='passenger', blank=True, verbose_name='随车人员')
     route = models.OneToOneField(Route, on_delete=models.DO_NOTHING, verbose_name='路线')
+    goods = models.ManyToManyField(GoodsItem, blank=True, verbose_name='商品')
     index = models.IntegerField(default=1, verbose_name='排序')
 
     class Meta:
