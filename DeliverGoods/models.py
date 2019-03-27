@@ -1,4 +1,6 @@
 # -*- coding: UTF-8 -*-
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 # from django.contrib.auth.models import User
@@ -153,6 +155,8 @@ class DeliveryNote(models.Model):
     actualPrice = models.FloatField(verbose_name='实收金额')
     bookkeeping = models.FloatField(default=0, verbose_name='记账金额')
     status = models.IntegerField(default=0, verbose_name='状态', help_text='0:未完成 1:已完成')
+    noteTime = models.DateTimeField(auto_created=True, null=False, verbose_name='订单日期')
+    finishTime = models.DateTimeField(auto_created=True, null=True, verbose_name='完成日期')
     createTime = models.DateTimeField(auto_created=True)
     updateTime = models.DateTimeField(auto_now_add=True)
 
@@ -161,7 +165,7 @@ class DeliveryNote(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return self.car.name + '---' + self.shop.name
+        return self.car.name + '---' + self.shop.name + '---' + self.noteTime.strftime('%Y-%m-%d %H:%I:%S')
 
 
 # 货运路线

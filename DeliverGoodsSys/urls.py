@@ -22,6 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('dg/login', dg_views.do_login),
     path('dg/logout', dg_views.do_logout),
-    path('dg/getRouteShopList', dg_views.getRouteShopList),
+    path('dg/getCarInfo', dg_views.getCarInfo),
     path('dg/getShopGoodsList', dg_views.getShopGoodsList),
 ]
