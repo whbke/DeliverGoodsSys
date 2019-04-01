@@ -118,8 +118,11 @@ def getShopGoodsList(request):
                 'goods_id': goodsItem.goods.id,
                 'name': goodsItem.goods.name,
                 'currentNumber': goodsItem.currentNumber,
-                'unit_id': goodsItem.currentNumberUnit.id,
-                'unit_name': goodsItem.currentNumberUnit.name,
+                'currentNumberUnit_id': goodsItem.currentNumberUnit.id,
+                'currentNumberUnit_name': goodsItem.currentNumberUnit.name,
+                'targetNumber': goodsItem.targetNumber,
+                'targetNumberUnit_id': goodsItem.targetNumberUnit.id,
+                'targetNumberUnit_name': goodsItem.targetNumberUnit.name,
             })
 
         return ResponseMsg(True, goodsList, None)
