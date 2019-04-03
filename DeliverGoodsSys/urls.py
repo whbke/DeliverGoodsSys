@@ -24,4 +24,6 @@ urlpatterns = [
     path('dg/logout', dg_views.do_logout),
     path('dg/getCarInfo', dg_views.getCarInfo),
     path('dg/getShopGoodsList', dg_views.getShopGoodsList),
+    path('dg/getShopNoteToday', dg_views.getShopNoteToday),
+    path('dg/commitShopNote', dg_views.commitShopNote),
 ]

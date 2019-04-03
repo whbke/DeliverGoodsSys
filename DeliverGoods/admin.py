@@ -4,11 +4,11 @@ from django.contrib import admin
 
 from DeliverGoods.models import User, UnitCategory, Unit, GoodsCategory,\
     Goods, Warehouse, Shop, GoodsItem, DeliveryNote, DeliveryNoteGoods,\
-    Route, Car
+    Route, Car, CarGoodsItem
 
 # Register your models here.
 admin.site.register([User, UnitCategory, Unit, GoodsCategory,
-                     Goods, GoodsItem, DeliveryNoteGoods])
+                     Goods, GoodsItem, DeliveryNoteGoods, CarGoodsItem])
 
 
 class ShopAdmin(admin.ModelAdmin):

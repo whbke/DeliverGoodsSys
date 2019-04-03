@@ -151,18 +151,20 @@ class DeliveryNoteGoods(models.Model):
 class DeliveryNote(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, verbose_name='商家')
     goods = models.ManyToManyField(DeliveryNoteGoods, blank=True, verbose_name='货物')
-    totalPrice = models.FloatField(verbose_name='总金额')
-    actualPrice = models.FloatField(verbose_name='实收金额')
+    totalPrice = models.FloatField(default=0, verbose_name='总金额')
+    actualPrice = models.FloatField(default=0, verbose_name='实收金额')
     bookkeeping = models.FloatField(default=0, verbose_name='记账金额')
     status = models.IntegerField(default=0, verbose_name='状态', help_text='0:未完成 1:已完成')
-    noteTime = models.DateTimeField(auto_created=True, null=False, verbose_name='订单日期')
-    finishTime = models.DateTimeField(auto_created=True, null=True, verbose_name='完成日期')
+    noteTime = models.DateField(null=False, verbose_name='订单日期')
+    finishTime = models.DateTimeField(null=True, verbose_name='完成日期')
     createTime = models.DateTimeField(auto_created=True)
     updateTime = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = '送货单'
         verbose_name_plural = verbose_name
+        unique_together = ('shop', 'noteTime')
+        ordering = ['-noteTime']
 
     def __str__(self):
         return self.car.name + '---' + self.shop.name + '---' + self.noteTime.strftime('%Y-%m-%d %H:%I:%S')
@@ -183,13 +185,29 @@ class Route(models.Model):
         return self.name
 
 
+# 车辆-商品
+class CarGoodsItem(models.Model):
+    carName = models.CharField(max_length=128, verbose_name='车辆')
+    goods = models.ForeignKey(Goods, on_delete=models.CASCADE, verbose_name='商品')
+    carCurrentNumber = models.IntegerField(default=0, verbose_name='当前数量')
+    carCurrentNumberUnit = models.ForeignKey(Unit, related_name='carCurrentNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='当前数量单位')
+    carTargetNumber = models.IntegerField(default=0, verbose_name='目标数量')
+    carTargetNumberUnit = models.ForeignKey(Unit, related_name='carTargetNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='目标数量单位')
+
+    class Meta:
+        verbose_name = '车辆-商品'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return '{}-{}'.format(self.carName, self.goods.name)
+
 # 货运车
 class Car(models.Model):
     name = models.CharField(max_length=128, verbose_name='车')
     driver = models.ForeignKey(User, related_name='driver', blank=True, null=True, on_delete=models.SET_NULL, verbose_name='司机')
     passenger = models.ManyToManyField(User, related_name='passenger', blank=True, verbose_name='随车人员')
     route = models.OneToOneField(Route, on_delete=models.DO_NOTHING, verbose_name='路线')
-    goods = models.ManyToManyField(GoodsItem, blank=True, verbose_name='商品')
+    goods = models.ManyToManyField(CarGoodsItem, blank=True, verbose_name='商品')
     index = models.IntegerField(default=1, verbose_name='排序')
 
     class Meta:
