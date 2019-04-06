@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content_block %}
+<div class="account">
+	<div class="container">
+		<h1>登录</h1>
+		<div class="account_grid">
+			   <div class="col-md-6 login-right">
+				<form action="{% url 'login' %}" method="post">
+                    {% csrf_token %}
+					<span>用户名</span>
+					{{ login_form.username }}
+				
+					<span>密码</span>
+					{{ login_form.password }}
+					<div class="word-in">
+                        <input type="hidden" name="source_url" value="{{ request.META.HTTP_REFERER }}">
+				 		<input type="submit" value="登录">
+				  	</div>
+			    </form>
+			   </div>
+			   <div class="clearfix"> </div>
+			 </div>
+	</div>
+</div>
+{% endblock %}

@@ -92,8 +92,8 @@ def getCarInfo(request):
             },
             'goods': [
                 {
-                    'id': goodsItem.id,
-                    'goods_id': goodsItem.goods.id,
+                    'carGoodsItemId': goodsItem.id,
+                    'goodsId': goodsItem.goods.id,
                     'name': goodsItem.goods.name,
                     'currentNumber': goodsItem.carCurrentNumber,
                     'unitId': goodsItem.goods.unit.id,
@@ -107,32 +107,6 @@ def getCarInfo(request):
         logger.error(ee)
         return ResponseMsg(False, None, '异常')
 
-
-"""
-获取商店货物信息
-"""
-@login_required
-def getShopGoodsList(request):
-    try:
-        shop = dg_models.Shop.objects.get(pk=request.GET['shopId'])
-        if shop is None:
-            return ResponseMsg(False, None, '未知商家！')
-        goodsList = []
-        for goodsItem in shop.goods.all():
-            goodsList.append({
-                'id': goodsItem.id,
-                'goods_id': goodsItem.goods.id,
-                'name': goodsItem.goods.name,
-                'currentNumber': goodsItem.currentNumber,
-                'targetNumber': goodsItem.targetNumber,
-                'unidId': goodsItem.goods.unit.id,
-                'unitName': goodsItem.goods.unit.name,
-            })
-
-        return ResponseMsg(True, goodsList, None)
-    except Exception as ee:
-        logger.error(ee)
-        return ResponseMsg(False, None, '异常')
 
 """
 获取订单模板
@@ -161,7 +135,7 @@ def getShopNoteToday(request):
         goodsList = []
         totalPrice = 0
         for goodsItem in shop.goods.all():
-            deliveriedGoods = note.goods.filter(goods__id=goodsItem.goods.id)
+            deliveriedGoods = note.goods.filter(goods__id=goodsItem.id)
             currentNumberDelivery = 0 if len(deliveriedGoods) == 0 else deliveriedGoods[0].actualDeliveryNumber
             carGoods = car.goods.filter(goods__id=goodsItem.goods.id)
             if len(carGoods) == 0:
@@ -171,7 +145,7 @@ def getShopNoteToday(request):
 
             totalPrice += currentNumberDelivery * goodsItem.price
             goodsList.append({
-                'id': goodsItem.id,
+                'goodsItemId': goodsItem.id,
                 'goodsId': goodsItem.goods.id,
                 'name': goodsItem.goods.name,
                 'currentNumberInCar': currentNumberInCar,
@@ -210,7 +184,7 @@ def getShopNoteToday(request):
     'bookkeeping': 0,
     'goodsList': [
         {
-            'id': 0,
+            'goodsItemId': 0,
             'goodsId': 0,
             'number': 0,
             'unitId': 0,
@@ -242,11 +216,11 @@ def commitShopNote(request):
             noteGoodsInfo = {}
             # 计算本次所有的商品
             for goodsItem in ([] if requestData.get('goodsList') is None else requestData.get('goodsList')):
-                deliveriedGoods = note.goods.filter(goods__id=goodsItem['id'])
-                shopGoods = shop.goods.filter(goods_id=goodsItem['id'])
+                deliveriedGoods = note.goods.filter(goods__id=goodsItem['goodsItemId'])
+                shopGoods = shop.goods.filter(goods_id=goodsItem['goodsItemId'])
                 if len(shopGoods) == 0: continue
-                noteGoodsInfo[goodsItem['id']] = {
-                    'id': goodsItem['id'],
+                noteGoodsInfo[goodsItem['goodsItemId']] = {
+                    'goodsItemId': goodsItem['goodsItemId'],
                     'goodsId': goodsItem['goodsId'],
                     'number': goodsItem['number'],
                     'deliveriedNumber': 0 if len(deliveriedGoods) == 0 else deliveriedGoods[0].actualDeliveryNumber,
@@ -255,17 +229,17 @@ def commitShopNote(request):
                 }
             # 计算以前添加的商品
             for goodsItem in note.goods.all():
-                thisGoods = noteGoodsInfo.get(goodsItem.id)
+                thisGoods = noteGoodsInfo.get(goodsItem.goods.id)
                 if thisGoods is not None: continue
-                shopGoods = shop.goods.filter(goods_id=goodsItem.id)
-                if len(shopGoods) == 0: continue
+                shopGoods = shop.goods.get(pk=goodsItem.goods.id)
+                if shopGoods is None: continue
                 noteGoodsInfo[goodsItem.id] = {
-                    'id': goodsItem.id,
-                    'goodsId': goodsItem.goods.id,
+                    'goodsItemId': goodsItem.goods.id,
+                    'goodsId': goodsItem.goods.goods.id,
                     'number': 0,
                     'deliveriedNumber': goodsItem.actualDeliveryNumber,
                     'unitId': goodsItem.goods.unit.id,
-                    'price': shopGoods[0].price,
+                    'price': shopGoods.price,
                 }
             note.goods.all().delete()
             # 更新订单
@@ -278,10 +252,10 @@ def commitShopNote(request):
                 # 更新商品
                 if goodsItem['number'] > 0:
                     totalPrice += goodsItem['price'] * goodsItem['number']
-                    shopGoods = shop.goods.filter(goods__id=goodsItem['goodsId'])
-                    if ( len(shopGoods) == 0): continue
+                    shopGoods = shop.goods.get(pk=goodsItem['goodsItemId'])
+                    if shopGoods is None: continue
                     note.goods.create(
-                        goods=shopGoods[0],
+                        goods=shopGoods,
                         actualDeliveryNumber=goodsItem['number']
                     )
             note.totalPrice = totalPrice
