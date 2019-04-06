@@ -96,8 +96,8 @@ def getCarInfo(request):
                     'goods_id': goodsItem.goods.id,
                     'name': goodsItem.goods.name,
                     'currentNumber': goodsItem.carCurrentNumber,
-                    'unit_id': goodsItem.carCurrentNumberUnit.id,
-                    'unit_name': goodsItem.carCurrentNumberUnit.name,
+                    'unitId': goodsItem.goods.unit.id,
+                    'unitName': goodsItem.goods.unit.name,
                 } for goodsItem in car.goods.all()
             ]
         }
@@ -124,11 +124,9 @@ def getShopGoodsList(request):
                 'goods_id': goodsItem.goods.id,
                 'name': goodsItem.goods.name,
                 'currentNumber': goodsItem.currentNumber,
-                'currentNumberUnit_id': goodsItem.currentNumberUnit.id,
-                'currentNumberUnit_name': goodsItem.currentNumberUnit.name,
                 'targetNumber': goodsItem.targetNumber,
-                'targetNumberUnit_id': goodsItem.targetNumberUnit.id,
-                'targetNumberUnit_name': goodsItem.targetNumberUnit.name,
+                'unidId': goodsItem.goods.unit.id,
+                'unitName': goodsItem.goods.unit.name,
             })
 
         return ResponseMsg(True, goodsList, None)
@@ -179,8 +177,8 @@ def getShopNoteToday(request):
                 'currentNumberInCar': currentNumberInCar,
                 'currentNumberDelivery': currentNumberDelivery,
                 'targetNumber': goodsItem.targetNumber,
-                'unitId': goodsItem.unit.id,
-                'unitName': goodsItem.unit.name,
+                'unitId': goodsItem.goods.unit.id,
+                'unitName': goodsItem.goods.unit.name,
                 'price': goodsItem.price,
             })
 
@@ -266,7 +264,7 @@ def commitShopNote(request):
                     'goodsId': goodsItem.goods.id,
                     'number': 0,
                     'deliveriedNumber': goodsItem.actualDeliveryNumber,
-                    'unitId': goodsItem.uni.id,
+                    'unitId': goodsItem.goods.unit.id,
                     'price': shopGoods[0].price,
                 }
             note.goods.all().delete()
@@ -284,8 +282,7 @@ def commitShopNote(request):
                     if ( len(shopGoods) == 0): continue
                     note.goods.create(
                         goods=shopGoods[0],
-                        actualDeliveryNumber=goodsItem['number'],
-                        actualDeliveryNumberUnit=dg_models.Unit.objects.get(pk=goodsItem['unitId'])
+                        actualDeliveryNumber=goodsItem['number']
                     )
             note.totalPrice = totalPrice
             note.actualPrice = requestData['actualPrice']

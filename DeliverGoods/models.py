@@ -84,20 +84,20 @@ class Goods(models.Model):
 class GoodsItem(models.Model):
     goods = models.ForeignKey(Goods, on_delete=models.CASCADE, verbose_name='商品')
     price = models.FloatField(verbose_name='价格')
-    unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, verbose_name='单位')
+    # unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, verbose_name='单位')
     currentNumber = models.IntegerField(default=0, verbose_name='当前数量')
-    currentNumberUnit = models.ForeignKey(Unit, related_name='currentNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='当前数量单位')
+    # currentNumberUnit = models.ForeignKey(Unit, related_name='currentNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='当前数量单位')
     targetNumber = models.IntegerField(default=0, verbose_name='目标数量')
-    targetNumberUnit = models.ForeignKey(Unit, related_name='targetNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='目标数量单位')
+    # targetNumberUnit = models.ForeignKey(Unit, related_name='targetNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='目标数量单位')
     deliveryNumber = models.IntegerField(default=0, verbose_name='送货数量')
-    deliveryNumberUnit = models.ForeignKey(Unit, related_name='deliveryNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='送货数量单位')
+    # deliveryNumberUnit = models.ForeignKey(Unit, related_name='deliveryNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='送货数量单位')
 
     class Meta:
         verbose_name = '商家-商品'
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return '{}({}/{})'.format(self.goods.name, self.price, self.unit.name)
+        return '{}({}/{})'.format(self.goods.name, self.price, self.goods.unit.name)
 
 
 # 仓库
@@ -137,7 +137,7 @@ class Shop(models.Model):
 class DeliveryNoteGoods(models.Model):
     goods = models.ForeignKey(GoodsItem, on_delete=models.CASCADE, verbose_name='商品')
     actualDeliveryNumber = models.IntegerField(default=0, verbose_name='送货数量')
-    actualDeliveryNumberUnit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, verbose_name='送货数量单位')
+    # actualDeliveryNumberUnit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, verbose_name='送货数量单位')
 
     class Meta:
         verbose_name = '送货单-货物'
@@ -190,9 +190,9 @@ class CarGoodsItem(models.Model):
     carName = models.CharField(max_length=128, verbose_name='车辆')
     goods = models.ForeignKey(Goods, on_delete=models.CASCADE, verbose_name='商品')
     carCurrentNumber = models.IntegerField(default=0, verbose_name='当前数量')
-    carCurrentNumberUnit = models.ForeignKey(Unit, related_name='carCurrentNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='当前数量单位')
+    # carCurrentNumberUnit = models.ForeignKey(Unit, related_name='carCurrentNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='当前数量单位')
     carTargetNumber = models.IntegerField(default=0, verbose_name='目标数量')
-    carTargetNumberUnit = models.ForeignKey(Unit, related_name='carTargetNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='目标数量单位')
+    # carTargetNumberUnit = models.ForeignKey(Unit, related_name='carTargetNumberUnit', on_delete=models.SET_NULL, null=True, verbose_name='目标数量单位')
 
     class Meta:
         verbose_name = '车辆-商品'
