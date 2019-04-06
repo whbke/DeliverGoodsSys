@@ -178,8 +178,9 @@ def getShopNoteToday(request):
                 'name': goodsItem.goods.name,
                 'currentNumberInCar': currentNumberInCar,
                 'currentNumberDelivery': currentNumberDelivery,
-                'unit_id': goodsItem.unit.id,
-                'unit_name': goodsItem.unit.name,
+                'targetNumber': goodsItem.targetNumber,
+                'unitId': goodsItem.unit.id,
+                'unitName': goodsItem.unit.name,
                 'price': goodsItem.price,
             })
 
@@ -230,9 +231,16 @@ def commitShopNote(request):
             shop = dg_models.Shop.objects.get(pk=requestData.get('shopId'))
             if shop is None:
                 return ResponseMsg(False, None, '未知商店')
-            note = dg_models.DeliveryNote.objects.get(pk=requestData.get('noteId'))
-            if note is None:
-                note = dg_models.DeliveryNote.objects.create(shop=shop)
+            if requestData.get('noteId') is None:
+                notes = dg_models.DeliveryNote.objects.filter(shop=shop, noteTime=timezone.now())
+                if len( notes ) == 0:
+                    note = dg_models.DeliveryNote.objects.get(pk=requestData.get('noteId'))
+                else:
+                    note = notes[0]
+            else:
+                note = dg_models.DeliveryNote.objects.get(pk=requestData.get('noteId'))
+                if note is None:
+                    note = dg_models.DeliveryNote.objects.create(shop=shop)
             noteGoodsInfo = {}
             # 计算本次所有的商品
             for goodsItem in ([] if requestData.get('goodsList') is None else requestData.get('goodsList')):
