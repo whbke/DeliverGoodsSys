@@ -144,7 +144,7 @@ class DeliveryNoteGoods(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return self.note.shop.name + '---' + self.goods.goods.name + '---' + self.note.createTime
+        return '{}--卸载{}{}--{}/{}'.format(self.goods.goods.name, self.actualDeliveryNumber, self.goods.goods.unit.name, self.goods.price, self.goods.goods.unit.name)
 
 
 # 送货单
@@ -167,7 +167,7 @@ class DeliveryNote(models.Model):
         ordering = ['-noteTime']
 
     def __str__(self):
-        return self.car.name + '---' + self.shop.name + '---' + self.noteTime.strftime('%Y-%m-%d %H:%I:%S')
+        return self.shop.name + '---' + self.noteTime.strftime('%Y-%m-%d %H:%I:%S')
 
 
 # 货运路线
