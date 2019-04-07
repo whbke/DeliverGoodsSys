@@ -68,10 +68,16 @@ def index(request):
     if noteTime is None or noteTime == '':
         noteTime = timezone.now()
     else:
-        noteTime = timezone.datetime.strptime(noteTime, "%Y-%m-%d %H:%M:%S")
+        noteTime = timezone.datetime.strptime(noteTime, "%Y-%m-%d")
     totalPrice = 0
+    actualPrice = 0
+    bookkeeping = 0
     carList = []
     for car in dg_models.Car.objects.all():
+        carTotalPrice = 0
+        carActualPrice = 0
+        carBookkeeping = 0
+
         carInfo = {}
         carInfo['id'] = car.id
         carInfo['name'] = car.name
@@ -81,6 +87,7 @@ def index(request):
         for goodsItem in car.goods.all():
             remainderGoodList.append({
                 'id': goodsItem.id,
+                'name': goodsItem.goods.name,
                 'goodsId': goodsItem.goods.id,
                 'carCurrentNumber': goodsItem.carCurrentNumber,
                 'carTargetNumber': goodsItem.carTargetNumber,
@@ -90,13 +97,20 @@ def index(request):
         carInfo['remainderGoodList'] = remainderGoodList
         # 送货订单
         noteList = []
-        for note in dg_models.DeliveryNote.objects.filter(noteTime=noteTime):
+        for note in dg_models.DeliveryNote.objects.filter(shop_id__in=[shop.id for shop in car.route.shops.all()], noteTime=noteTime):
+            totalPrice += note.totalPrice
+            actualPrice += note.actualPrice
+            bookkeeping += note.bookkeeping
+            carTotalPrice += note.totalPrice
+            carActualPrice += note.actualPrice
+            carBookkeeping += note.bookkeeping
             noteInfo = {
                 'id': note.id,
                 'shopId': note.shop.id,
+                'shopName': note.shop.name,
                 'totalPrice': note.totalPrice,
                 'actualPrice': note.actualPrice,
-                'bookkeeping': note.actualPrice,
+                'bookkeeping': note.bookkeeping,
             }
             noteGoodsList = []
             for noteGoodsItem in note.goods.all():
@@ -104,13 +118,16 @@ def index(request):
                     'id': noteGoodsItem.id,
                     'goodsId': noteGoodsItem.goods.goods.id,
                     'goodsName': noteGoodsItem.goods.goods.name,
-                    'actualDeliveryNumber': noteGoodsItem.actualDeliveryNumber
+                    'price': noteGoodsItem.goods.price,
+                    'actualDeliveryNumber': noteGoodsItem.actualDeliveryNumber,
+                    'unitName': noteGoodsItem.goods.goods.unit.name,
+                    'amount': noteGoodsItem.goods.price * noteGoodsItem.actualDeliveryNumber
                 })
-
-
-
-
-
-
-
-    return render(request,"index.html",locals())
+            noteInfo['noteGoodsList'] = noteGoodsList
+            noteList.append(noteInfo)
+        carInfo['noteList'] = noteList
+        carInfo['totalPrice'] = carTotalPrice
+        carInfo['actualPrice'] = carActualPrice
+        carInfo['bookkeeping'] = carBookkeeping
+        carList.append(carInfo)
+    return render(request, "index.html", locals())

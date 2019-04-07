@@ -2,10 +2,129 @@
 {% load staticfiles %}
 {% block content_block %}
 <div class="content">
-    <div class="container">
-        <div class="content-top">
-
+<div class="container">
+<form class="form-horizontal">
+    <div class="form-group">
+        <label class="col-sm-offset-2 col-sm-2 control-label">日期</label>
+        <div class="col-sm-4">
+            <input id="note-time" class="form-control" type="date">
+        </div>
+        <div class="col-sm-1">
+            <button type="button" class="form-control" onclick="showAllNote();">查询</button>
         </div>
     </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">总额</label>
+        <div class="col-sm-4">
+            <input id="total-price" class="form-control" type="text" readonly value="{{ totalPrice|floatformat:2 }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">实收</label>
+        <div class="col-sm-4">
+            <input id="actual-price" class="form-control" type="text" readonly value="{{ actualPrice|floatformat:2 }}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">记账</label>
+        <div class="col-sm-4">
+            <input id="bookkeeping" class="form-control" type="text" readonly value="{{ bookkeeping|floatformat:2 }}">
+        </div>
+    </div>
+</form>
+</div>
+
+
+
+
+<div class="container panel-group" id="car-panel-group" role="tablist" aria-multiselectable="true">
+{% for carInfo in carList %}
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="heading-car-{{ carInfo.id }}">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#car-panel-group" href="#collapse-car-{{ carInfo.id }}" aria-expanded="false" aria-controls="collapse-car-{{ carInfo.id }}">
+            {{ carInfo.name }}
+            总金额:{{ carInfo.totalPrice|floatformat:2 }}
+            实收金额:{{ carInfo.actualPrice|floatformat:2 }}
+            记账金额:{{ carInfo.bookkeeping|floatformat:2 }}
+        </a>
+      </h4>
+    </div>
+    <div id="collapse-car-{{ carInfo.id }}" class="panel-collapse collapse role="tabpanel" aria-labelledby="heading-car-{{ carInfo.id }}">
+      <div class="panel-body">
+        <div class="panel-group" id="car-info-panel-group-{{ carInfo.id }}" role="tablist" aria-multiselectable="true">
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="heading-car-note-{{ carInfo.id }}">
+              <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-car-note-{{ carInfo.id }}" aria-expanded="false" aria-controls="collapse-car-note-{{ carInfo.id }}">
+                  订单
+                </a>
+              </h4>
+            </div>
+            <div id="collapse-car-note-{{ carInfo.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-car-note-{{ carInfo.id }}">
+              <div class="panel-body">
+              {% for noteInfo in carInfo.noteList %}
+                <h3>{{ noteInfo.shopName }}&nbsp;总金额:{{ noteInfo.totalPrice }}&nbsp;实收:{{ noteInfo.actualPrice }}&nbsp;记账:{{ noteInfo.bookkeeping }}</h3>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>商品</th>
+                        <th>单价</th>
+                        <th>卸载数量</th>
+                        <th>金额</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for noteGoodsItem in noteInfo.noteGoodsList %}
+                    <tr>
+                        <td>{{ noteGoodsItem.goodsName }}</td>
+                        <td>{{ noteGoodsItem.price }}</td>
+                        <td>{{ noteGoodsItem.actualDeliveryNumber }}{{ noteGoodsItem.unitName }}</td>
+                        <td>{{ noteGoodsItem.amount }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+              {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="heading-car-goods-{{ carInfo.id }}">
+              <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" data-parent="#car-info-panel-group-{{ carInfo.id }}" href="#collapse-car-goods-{{ carInfo.id }}" aria-expanded="false" aria-controls="collapse-car-goods-{{ carInfo.id }}">
+                  车上商品
+                </a>
+              </h4>
+            </div>
+            <div id="collapse-car-goods-{{ carInfo.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading-car-goods-{{ carInfo.id }}">
+              <div class="panel-body">
+                <table class="table">
+                <thead>
+                    <tr>
+                        <th>商品</th>
+                        <th>剩余</th>
+                        <th>目标</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for goodsItem in carInfo.remainderGoodList %}
+                    <tr>
+                        <td>{{ goodsItem.name }}</td>
+                        <td>{{ goodsItem.carCurrentNumber }}{{ goodsItem.unitName }}</td>
+                        <td>{{ goodsItem.carTargetNumber }}{{ goodsItem.unitName }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+</div>
 </div>
 {% endblock %}

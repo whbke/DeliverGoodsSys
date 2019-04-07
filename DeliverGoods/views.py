@@ -216,16 +216,16 @@ def commitShopNote(request):
             noteGoodsInfo = {}
             # 计算本次所有的商品
             for goodsItem in ([] if requestData.get('goodsList') is None else requestData.get('goodsList')):
-                deliveriedGoods = note.goods.filter(goods__id=goodsItem['goodsItemId'])
-                shopGoods = shop.goods.filter(goods_id=goodsItem['goodsItemId'])
-                if len(shopGoods) == 0: continue
+                deliveriedGoods = note.goods.filter(goods_id=goodsItem['goodsItemId'])
+                shopGoods = shop.goods.get(pk=goodsItem['goodsItemId'])
+                if shopGoods is None: continue
                 noteGoodsInfo[goodsItem['goodsItemId']] = {
                     'goodsItemId': goodsItem['goodsItemId'],
                     'goodsId': goodsItem['goodsId'],
                     'number': goodsItem['number'],
                     'deliveriedNumber': 0 if len(deliveriedGoods) == 0 else deliveriedGoods[0].actualDeliveryNumber,
                     'unitId': goodsItem['unitId'],
-                    'price': shopGoods[0].price,
+                    'price': shopGoods.price,
                 }
             # 计算以前添加的商品
             for goodsItem in note.goods.all():
@@ -246,7 +246,7 @@ def commitShopNote(request):
             totalPrice = 0
             for goodsItemId, goodsItem in noteGoodsInfo.items():
                 # 更新车辆信息
-                goods0 = car.goods.filter(goods__id=goodsItem['goodsId'])
+                goods0 = car.goods.filter(goods_id=goodsItem['goodsId'])
                 if len(goods0) == 0: continue
                 goods0.update(carCurrentNumber=F('carCurrentNumber') + goodsItem['deliveriedNumber'] - goodsItem['number'])
                 # 更新商品
