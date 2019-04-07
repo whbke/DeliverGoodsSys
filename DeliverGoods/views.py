@@ -247,8 +247,8 @@ def commitShopNote(request):
             for goodsItemId, goodsItem in noteGoodsInfo.items():
                 # 更新车辆信息
                 goods0 = car.goods.filter(goods_id=goodsItem['goodsId'])
-                if len(goods0) == 0: continue
-                goods0.update(carCurrentNumber=F('carCurrentNumber') + goodsItem['deliveriedNumber'] - goodsItem['number'])
+                if len(goods0) != 0:
+                    goods0.update(carCurrentNumber=F('carCurrentNumber') + goodsItem['deliveriedNumber'] - goodsItem['number'])
                 # 更新商品
                 if goodsItem['number'] > 0:
                     totalPrice += goodsItem['price'] * goodsItem['number']
